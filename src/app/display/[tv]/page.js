@@ -43,6 +43,7 @@ export default function DisplayPage({ params }) {
     };
   }, [tv]);
 
+  console.log("mediaUrl:", mediaUrl);
   return (
     <div style={{ width: "100vw", height: "100vh", background: "black", display: "flex", alignItems: "center", justifyContent: "center" }}>
       {mediaUrl ? (
