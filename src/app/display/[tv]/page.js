@@ -13,13 +13,14 @@ export default function DisplayPage({ params }) {
     fetch(`/uploads?tv=${tv}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("uploads API response:", data); // <--- Add this line
+        console.log("uploads API response:", data);
         const tvFiles = data.files.filter((file) => file.startsWith(tv + "-"));
         if (tvFiles.length > 0) {
-          // Construct S3 URL
           const lastFile = tvFiles[tvFiles.length - 1];
+          // Use NEXT_PUBLIC_S3_BUCKET_NAME and NEXT_PUBLIC_AWS_REGION for client-side
           const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${lastFile}`;
           setMediaUrl(url);
+          console.log("mediaUrl:", url);
         } else {
           setMediaUrl(null);
         }
