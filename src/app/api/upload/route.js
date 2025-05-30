@@ -36,7 +36,6 @@ export async function POST(request) {
         Key: filename,
         Body: buffer,
         ContentType: file.type,
-        ACL: "public-read", // For demo; for production, use signed URLs
       })
     );
 
