@@ -13,6 +13,7 @@ export default function DisplayPage({ params }) {
     fetch(`/uploads?tv=${tv}`)
       .then((res) => res.json())
       .then((data) => {
+        console.log("uploads API response:", data); // <--- Add this line
         const tvFiles = data.files.filter((file) => file.startsWith(tv + "-"));
         if (tvFiles.length > 0) {
           // Construct S3 URL
