@@ -7,6 +7,7 @@ let socket;
 export default function DisplayPage({ params }) {
   const { tv } = params;
   const [media, setMedia] = useState(null);
+  const [mediaUrl, setMediaUrl] = useState(null);
 
   const fetchMedia = () => {
     fetch(`/uploads?tv=${tv}`)
@@ -14,9 +15,12 @@ export default function DisplayPage({ params }) {
       .then((data) => {
         const tvFiles = data.files.filter((file) => file.startsWith(tv + "-"));
         if (tvFiles.length > 0) {
-          setMedia(tvFiles[tvFiles.length - 1]);
+          // Construct S3 URL
+          const lastFile = tvFiles[tvFiles.length - 1];
+          const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${lastFile}`;
+          setMediaUrl(url);
         } else {
-          setMedia(null);
+          setMediaUrl(null);
         }
       });
   };
@@ -41,10 +45,10 @@ export default function DisplayPage({ params }) {
 
   return (
     <div style={{ width: "100vw", height: "100vh", background: "black", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      {media ? (
-        media.endsWith(".mp4") ? (
+      {mediaUrl ? (
+        mediaUrl.endsWith(".mp4") ? (
           <video
-            src={`/uploads/${media}`}
+            src={mediaUrl}
             autoPlay
             loop
             muted
@@ -53,8 +57,8 @@ export default function DisplayPage({ params }) {
           />
         ) : (
           <img
-            src={`/uploads/${media}`}
-            alt={media}
+            src={mediaUrl}
+            alt={mediaUrl}
             style={{ width: "100vw", height: "100vh", objectFit: "contain", background: "black" }}
           />
         )
