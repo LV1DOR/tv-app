@@ -13,15 +13,24 @@ app.prepare().then(() => {
     handle(req, res, parsedUrl);
   });
 
-  const io = new Server(server);
-  global.io = io; // Make io available globally
+  // Socket.IO setup
+  const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  global.io = io;
 
   io.on("connection", (socket) => {
     console.log("Socket.IO client connected");
   });
 
-  server.listen(3000, (err) => {
+  // Use Render's port
+  const port = process.env.PORT || 3000;
+  server.listen(port, (err) => {
     if (err) throw err;
-    console.log("> Ready on http://localhost:3000");
+    console.log("> Ready on http://localhost:" + port);
   });
 });
