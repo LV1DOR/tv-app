@@ -11,6 +11,9 @@ export default function AdminPage() {
   const [port, setPort] = useState("");
   const [tv, setTv] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [width, setWidth] = useState("1080");
+  const [height, setHeight] = useState("1920");
+  const [displayUrl, setDisplayUrl] = useState("");
 
   if (!authenticated) {
     return (
@@ -66,6 +69,14 @@ export default function AdminPage() {
     } else {
       alert("File upload failed.");
     }
+  };
+
+  const handleGenerate = () => {
+    if (!tv) return;
+    // You can add "px" or leave as number, your display page accepts both
+    setDisplayUrl(
+      `https://tv-app-0slp.onrender.com/display/${tv}?width=${width}px&height=${height}px`
+    );
   };
 
   return (
@@ -126,6 +137,49 @@ export default function AdminPage() {
         >
           Upload
         </button>
+      </div>
+      <div style={{ maxWidth: 400, margin: "2rem auto", padding: 24, background: "#222", color: "#fff", borderRadius: 8 }}>
+        <h2>Generate Display Link</h2>
+        <div style={{ marginBottom: 12 }}>
+          <label>TV Name:</label>
+          <input
+            type="text"
+            value={tv}
+            onChange={e => setTv(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 4 }}
+          />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label>Width (px):</label>
+          <input
+            type="number"
+            value={width}
+            onChange={e => setWidth(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 4 }}
+          />
+        </div>
+        <div style={{ marginBottom: 12 }}>
+          <label>Height (px):</label>
+          <input
+            type="number"
+            value={height}
+            onChange={e => setHeight(e.target.value)}
+            style={{ width: "100%", padding: 8, marginTop: 4 }}
+          />
+        </div>
+        <button onClick={handleGenerate} style={{ padding: "8px 16px", marginBottom: 16 }}>
+          Generate Link
+        </button>
+        {displayUrl && (
+          <div>
+            <strong>Display Link:</strong>
+            <div>
+              <a href={displayUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#4ecdc4" }}>
+                {displayUrl}
+              </a>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

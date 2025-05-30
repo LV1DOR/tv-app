@@ -1,26 +1,26 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { io } from "socket.io-client";
 
 let socket;
 
 export default function DisplayPage({ params }) {
   const { tv } = params;
-  const [media, setMedia] = useState(null);
+  const searchParams = useSearchParams();
+  const width = searchParams.get("width") || "100vw";
+  const height = searchParams.get("height") || "100vh";
   const [mediaUrl, setMediaUrl] = useState(null);
 
   const fetchMedia = () => {
     fetch(`/uploads?tv=${tv}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("uploads API response:", data);
         const tvFiles = data.files.filter((file) => file.startsWith(tv + "-"));
         if (tvFiles.length > 0) {
           const lastFile = tvFiles[tvFiles.length - 1];
-          // Use NEXT_PUBLIC_S3_BUCKET_NAME and NEXT_PUBLIC_AWS_REGION for client-side
           const url = `https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.${process.env.NEXT_PUBLIC_AWS_REGION}.amazonaws.com/${lastFile}`;
           setMediaUrl(url);
-          console.log("mediaUrl:", url);
         } else {
           setMediaUrl(null);
         }
@@ -29,12 +29,9 @@ export default function DisplayPage({ params }) {
 
   useEffect(() => {
     fetchMedia();
-    // Only connect socket once
     if (!socket) {
-      // IMPORTANT: Use the correct URL for your server!
-      socket = io("https://tv-app-0slp.onrender.com"); // e.g., "http://192.168.1.42:3000"
+      socket = io("https://tv-app-0slp.onrender.com");
     }
-    // Listen for mediaUploaded events for this TV
     socket.on("mediaUploaded", (data) => {
       if (data.filename.startsWith(tv + "-")) {
         fetchMedia();
@@ -45,9 +42,17 @@ export default function DisplayPage({ params }) {
     };
   }, [tv]);
 
-  console.log("mediaUrl:", mediaUrl);
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "black", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div
+      style={{
+        width,
+        height,
+        background: "black",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       {mediaUrl ? (
         mediaUrl.endsWith(".mp4") ? (
           <video
@@ -56,13 +61,13 @@ export default function DisplayPage({ params }) {
             loop
             muted
             controls={false}
-            style={{ width: "100vw", height: "100vh", objectFit: "contain", background: "black" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", background: "black" }}
           />
         ) : (
           <img
             src={mediaUrl}
             alt={mediaUrl}
-            style={{ width: "100vw", height: "100vh", objectFit: "contain", background: "black" }}
+            style={{ width: "100%", height: "100%", objectFit: "contain", background: "black" }}
           />
         )
       ) : (
