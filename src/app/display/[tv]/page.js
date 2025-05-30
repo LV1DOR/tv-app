@@ -26,7 +26,7 @@ export default function DisplayPage({ params }) {
     // Only connect socket once
     if (!socket) {
       // IMPORTANT: Use the correct URL for your server!
-      socket = io("http://<10.2.255.232>:3000"); // e.g., "http://192.168.1.42:3000"
+      socket = io("https://tv-app-0slp.onrender.com"); // e.g., "http://192.168.1.42:3000"
     }
     // Listen for mediaUploaded events for this TV
     socket.on("mediaUploaded", (data) => {
