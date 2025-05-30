@@ -49,6 +49,7 @@ export async function POST(request) {
     const url = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
     return NextResponse.json({ filename, url });
   } catch (error) {
+    console.error("S3 upload error:", error); // Add this line
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
