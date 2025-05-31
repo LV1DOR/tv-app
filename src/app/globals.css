@@ -1,6 +1,5 @@
 @import "@fontsource/inter/variable.css";
 @tailwind base;
-npm install @fontsource/inter
 @tailwind components;
 @tailwind utilities;
 
