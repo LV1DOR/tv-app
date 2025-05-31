@@ -1,5 +1,6 @@
+@import "@fontsource/inter/variable.css";
 @tailwind base;
-
+npm install @fontsource/inter
 @tailwind components;
 @tailwind utilities;
 
@@ -9,11 +10,26 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-[#f9fafb] text-gray-900 font-sans;
 }
 
 body.display-page nav {
   display: none !important;
 }
+```
+
+// filepath: /c:/Users/Luke/tv-app/tailwind.config.js
+module.exports = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx}",
+    "./app/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: ['InterVariable', 'Inter', 'ui-sans-serif', 'system-ui'],
+      },
+    },
+  },
+  plugins: [],
+};
