@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ADMIN_PASSWORD = "admin123"; // Change this!
 
@@ -12,6 +12,28 @@ export default function AdminPage() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [displayUrl, setDisplayUrl] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [tvList, setTvList] = useState([]);
+
+  // Fetch TV list on load and after changes
+  useEffect(() => {
+    if (authenticated) {
+      fetch("/api/tv-settings")
+        .then(res => res.json())
+        .then(data => setTvList(Object.keys(data)));
+    }
+  }, [authenticated, tv]);
+
+  // When selecting a TV, load its settings
+  useEffect(() => {
+    if (tv) {
+      fetch(`/api/tv-settings?tv=${tv}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.width) setWidth(data.width);
+          if (data.height) setHeight(data.height);
+        });
+    }
+  }, [tv]);
 
   if (!authenticated) {
     return (
@@ -88,6 +110,26 @@ export default function AdminPage() {
       body: JSON.stringify({ tv, width, height }),
     });
     alert("Resolution saved!");
+    // Refresh TV list
+    fetch("/api/tv-settings")
+      .then(res => res.json())
+      .then(data => setTvList(Object.keys(data)));
+  };
+
+  const handleDeleteTv = async (tvToDelete) => {
+    if (!window.confirm(`Delete TV "${tvToDelete}"? This cannot be undone.`)) return;
+    await fetch("/api/tv-settings", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tv: tvToDelete }),
+    });
+    setTvList(tvList.filter(item => item !== tvToDelete));
+    if (tv === tvToDelete) {
+      setTv("");
+      setWidth("1080");
+      setHeight("1920");
+      setDisplayUrl("");
+    }
   };
 
   return (
@@ -96,13 +138,35 @@ export default function AdminPage() {
         <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">Admin Panel</h1>
         <div className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">TV Name</label>
+            <label className="block text-sm font-medium mb-1">Select TV</label>
+            <div className="flex space-x-2 mb-2">
+              <select
+                className="border p-3 rounded flex-1"
+                value={tv}
+                onChange={e => setTv(e.target.value)}
+              >
+                <option value="">-- Select TV --</option>
+                {tvList.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+              {tv && (
+                <button
+                  className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 transition"
+                  onClick={() => handleDeleteTv(tv)}
+                  title="Delete this TV"
+                  type="button"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
             <input
               type="text"
               value={tv}
               onChange={e => setTv(e.target.value)}
-              className="border p-3 w-full rounded"
-              placeholder="e.g., tv1"
+              className="border p-3 w-full rounded mt-2"
+              placeholder="Or enter new TV name"
             />
           </div>
           <div className="flex space-x-4">
@@ -160,6 +224,26 @@ export default function AdminPage() {
             style={{ marginTop: 8 }}
           >
             Save Resolution
+          </button>
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded w-full font-semibold hover:bg-red-700 transition"
+            onClick={async () => {
+              if (!tv) return;
+              if (!window.confirm(`Remove all media for "${tv}"?`)) return;
+              const res = await fetch("/api/media", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ tv }),
+              });
+              if (res.ok) {
+                alert("Media removed for this TV.");
+              } else {
+                alert("Failed to remove media.");
+              }
+            }}
+            style={{ marginTop: 8 }}
+          >
+            Remove Media for this TV
           </button>
           {displayUrl && (
             <div className="mt-4 p-3 bg-blue-50 rounded text-center">
