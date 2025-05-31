@@ -26,12 +26,19 @@ export default function DisplayPage({ params }) {
   };
 
   useEffect(() => {
-    // Fetch dimensions from the API
-    fetch(`/api/tv-settings?tv=${tv}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.width && data.height) setDimensions(data);
-      });
+    // Initial fetch
+    const fetchDimensions = () => {
+      fetch(`/api/tv-settings?tv=${tv}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.width && data.height) setDimensions(data);
+        });
+    };
+    fetchDimensions();
+
+    // Poll every 5 seconds
+    const interval = setInterval(fetchDimensions, 5000);
+
     fetchMedia();
     if (!socket) {
       socket = io("https://tv-app-0slp.onrender.com");
@@ -43,6 +50,7 @@ export default function DisplayPage({ params }) {
     });
     return () => {
       if (socket) socket.off("mediaUploaded");
+      clearInterval(interval);
     };
   }, [tv]);
 
