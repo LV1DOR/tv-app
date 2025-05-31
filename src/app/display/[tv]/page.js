@@ -7,9 +7,7 @@ let socket;
 
 export default function DisplayPage({ params }) {
   const { tv } = params;
-  const searchParams = useSearchParams();
-  const width = searchParams.get("width") || "100vw";
-  const height = searchParams.get("height") || "100vh";
+  const [dimensions, setDimensions] = useState({ width: "100vw", height: "100vh" });
   const [mediaUrl, setMediaUrl] = useState(null);
 
   const fetchMedia = () => {
@@ -28,6 +26,12 @@ export default function DisplayPage({ params }) {
   };
 
   useEffect(() => {
+    // Fetch dimensions from the API
+    fetch(`/api/tv-settings?tv=${tv}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.width && data.height) setDimensions(data);
+      });
     fetchMedia();
     if (!socket) {
       socket = io("https://tv-app-0slp.onrender.com");
@@ -45,8 +49,8 @@ export default function DisplayPage({ params }) {
   return (
     <div
       style={{
-        width,
-        height,
+        width: dimensions.width + (isNaN(dimensions.width) ? "" : "px"),
+        height: dimensions.height + (isNaN(dimensions.height) ? "" : "px"),
         background: "black",
         display: "flex",
         alignItems: "center",

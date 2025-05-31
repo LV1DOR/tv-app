@@ -80,6 +80,16 @@ export default function AdminPage() {
     );
   };
 
+  const handleSaveResolution = async () => {
+    if (!tv) return;
+    await fetch("/api/tv-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tv, width, height }),
+    });
+    alert("Resolution saved!");
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-200">
       <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full">
@@ -143,6 +153,13 @@ export default function AdminPage() {
             style={{ marginTop: 8 }}
           >
             Generate Display Link
+          </button>
+          <button
+            className="bg-green-500 text-white px-4 py-2 rounded w-full font-semibold hover:bg-green-600 transition"
+            onClick={handleSaveResolution}
+            style={{ marginTop: 8 }}
+          >
+            Save Resolution
           </button>
           {displayUrl && (
             <div className="mt-4 p-3 bg-blue-50 rounded text-center">
