@@ -76,7 +76,7 @@ export default function AdminPage() {
   const handleGenerate = () => {
     if (!tv) return;
     setDisplayUrl(
-      `https://tv-app-0slp.onrender.com/display/${tv}?width=${width}px&height=${height}px`
+      `https://tv-app-0slp.onrender.com/display/${tv}`
     );
   };
 
